@@ -1,0 +1,34 @@
+from random import randint
+print ("Escolhe: \n 1)Rock\n 2)Paper\n 3)scissors")
+x = randint (1,3)
+y = int(input())
+if (y == 1):
+    print ("You choose rock")
+elif (y == 2):
+    print ("You choose paper")
+elif (y == 3):
+    print ("You choose scissors")
+if (x == 1):
+    print ("The computer choses rock")
+elif (x == 2):
+    print ("The computer choses paper")
+elif (x == 3):
+    print ("the computer choses Scissors") 
+if (y == 1) and (x == 1):
+    print (" Tie \n Nobody won")
+elif (y == 1) and (x == 2):
+    print ("You lost to the computer")
+elif (y == 1) and (x == 3):
+    print ("You won")
+elif (y == 2) and (x == 1):
+    print ("You lost to the computer")
+elif (y == 2) and (x == 2):
+    print ("Tie \n Nobody won")
+elif (y == 2) and (x == 3):
+    print (" You lost to the computer")
+elif (y == 3) and (x == 1):
+    print ("You lost to the computer")
+elif (y == 3) and (x == 2):
+    print ("You lost to the computer")
+elif (y == 3) and (x == 3):
+    print ("Tie, nobody won")

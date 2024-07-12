@@ -1,0 +1,4 @@
+def reverse_string(s):
+    original_string = "Phyton"
+    reversed_string = (original_string)
+    print ("string original:{original_string}")

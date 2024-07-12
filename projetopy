@@ -1,0 +1,19 @@
+from random import randint
+x = randint (1, 50)
+y = int(input())
+z = 0
+if x > y: 
+    print ("The correct number is higher")
+    z = z+1
+elif x < y:
+    print ("The correct number is lower")
+    z = z+1
+while (x != y):
+    y = int(input())
+    if x > y: 
+        print ("The correct number is higher")
+        z = z+1
+    elif x < y:
+        print ("The correct number is lower")
+        z = z+1
+print (f"You guessed the number in {z} tries")

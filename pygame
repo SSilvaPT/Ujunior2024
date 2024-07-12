@@ -1,0 +1,275 @@
+import pygame
+from random import randint
+import random
+import sys
+
+# pygame setup
+pygame.init()
+screen = pygame.display.set_mode((1280, 720))
+clock = pygame.time.Clock()
+running = True
+dt = 0
+inicio = 220
+tamanho = 400-inicio
+descendo = True
+score = 0
+aiming = False
+max_score = 30
+attemps = 0
+max_attempts = 5
+game_over = False
+message = ""
+count = 0
+gravidade = 10
+start_game = False
+
+#Cores
+GOLD = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+font = pygame.font.Font(None, 50)
+title_font = pygame.font.Font(None, 100)
+
+image = pygame.image.load("background.png")
+image_rect = image.get_rect()
+image_rect.center = (400, 300)
+
+player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+ball_pos = pygame.Vector2(100, 100)
+ball_speed = pygame.Vector2(0, 0)
+ball_moving = False
+
+playerimage = pygame.image.load("Nemmias_Shooting.png").convert_alpha()
+flipped_image = pygame.transform.flip(playerimage, True, False)
+screen.blit(flipped_image, (50 + 1 * 120, 100))
+
+new_image = pygame.image.load("Nemmias_Shooting2.png")
+x, y = 100, 100
+image_react = playerimage.get_rect()
+image_rect.topleft = (x, y)
+
+image_changed = False
+offset = 0
+ball = pygame.image.load("Basketball.png")
+ball = pygame.transform.scale(ball, (35, 35))
+
+basket_x, basket_y = screen.get_width() / 2 - 20, screen.get_height() / 2 - 150
+
+basket_width, basket_height = 100, 100
+
+def drawplayer():
+    screen.blit(playerimage, (player_pos.x, player_pos.y))  
+
+def drawInvPlayer():
+    screen.blit(flipped_image, (player_pos.x, player_pos.y))
+
+def drawball(a):
+    if ball_moving:
+        screen.blit(ball, (ball_pos.x, ball_pos.y))
+    else:
+        screen.blit(ball, (player_pos.x + offset, player_pos.y))
+
+def background_sky(image):
+    size = pygame.transform.scale(image, (1280, 720))
+    screen.blit(size, (0, 0))
+
+def show_start_screen():
+    screen.fill(WHITE)
+    title_text = title_font.render('Basketball Game', True, GOLD)
+    start_text = font.render('Press any key to start', True, GOLD)
+    title_rect = title_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2 - 50))
+    start_rect = start_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2 + 50))
+    screen.blit(title_text, title_rect)
+    screen.blit(start_text, start_rect)
+    pygame.display.flip()
+
+def reset_game():
+    global player_pos, ball_pos, ball_speed, ball_moving, score, inicio, tamanho, descendo, aiming
+    player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    ball_pos = pygame.Vector2(100, 100)
+    ball_speed = pygame.Vector2(0, 0)
+    ball_moving = False
+    score = 0
+    inicio = 220
+    tamanho = 400 - inicio
+    descendo = True
+    aiming = False
+    global score_rect, attempts, game_over, message
+    score = 0
+    attempts = 0
+    game_over = False
+    message = ""
+    pygame.display.flip()
+# Tela inicial
+while not start_game:
+    show_start_screen()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            start_game = True
+            reset_game()
+
+final = (255, 255, 255)
+
+def show_game_over_screen():
+    screen.fill((255, 255, 255))   # Fundo branco para a tela de Game Over
+    game_over_text = title_font.render('Game Over', True, GOLD)
+    score_text = font.render(f'Score: {score}', True, GOLD)
+    game_over_rect = game_over_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2 - 50))
+    score_rect = score_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2 + 50))
+    screen.blit(game_over_text, game_over_rect)
+    screen.blit(score_text, score_rect)
+    restart_text = font.render('Press R to Restart', True, GOLD)
+    restart_rect = restart_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2 + 100))
+    screen.blit(restart_text, restart_rect)
+    pygame.display.flip()
+
+
+while running:
+    background_sky(image)
+    if player_pos.x < 570:
+        drawplayer()
+        offset = 0
+    else:
+        offset = 40
+        drawInvPlayer()
+    drawball(offset)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                reset_game() 
+
+    if game_over:
+        show_game_over_screen()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    reset_game()
+
+        continue
+    score_text = font.render(f'Score: {score}', True, GOLD)
+    score_rect = score_text.get_rect()
+    screen.blit(score_text, score_rect)
+
+    pygame.draw.rect(screen, 'white', pygame.Rect(50, 200, 20, 200))
+    pygame.draw.rect(screen, 'green', pygame.Rect(50, inicio, 20, tamanho))
+
+    attempts_text = font.render(f'Attempts: {attempts}/{max_attempts}', True, GOLD)
+    attempts_rect = attempts_text.get_rect(topleft=(10, 60))
+    screen.blit(attempts_text, attempts_rect)
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        player_pos.y -= 300 * dt
+    if keys[pygame.K_s]:
+        player_pos.y += 300 * dt
+    if keys[pygame.K_a]:
+        player_pos.x -= 300 * dt
+    if keys[pygame.K_d]:
+        player_pos.x += 300 * dt
+    if keys[pygame.K_SPACE] and not ball_moving: 
+        aiming = True
+        if descendo:
+            inicio += 2
+            tamanho = 400-inicio
+            if inicio > 400:
+                descendo = False
+        else:
+            inicio -= 2
+            tamanho = 400-inicio
+            if inicio < 200:
+                descendo = True
+    else:
+        if aiming:
+            aiming = False
+            ball_moving = True
+            ball_pos = player_pos + pygame.Vector2(offset, 0)
+            delta_x = basket_x - ball_pos.x
+            delta_y = basket_y - ball_pos.y
+            ball_speed = pygame.Vector2(10, -5)  # Definir a velocidade inicial da bola
+
+            
+            # Ajustar a velocidade com base no tamanho (potência do lançamento)
+            ball_speed.y = -(tamanho / 20)  # Ajuste a escala conforme necessário
+            gravidade = 10
+            if tamanho > 180:
+                    gravidade = 0
+            elif tamanho < 180 and tamanho > 100:
+                taxa = randint (1,2)
+                if taxa == 1:
+                    gravidade = 0
+            else:
+                taxa = randint (1,4)
+                if taxa == 1:
+                    gravidade = 0
+        inicio = 400
+        tamanho = 400-inicio
+
+    if ball_moving:
+        count += 1
+        # ball_pos += ball_speed
+        # ball_speed.y += 0.1  # Gravidade
+        if ball_pos.x != basket_x or ball_pos.y != basket_y:
+                ball_pos.x += delta_x / 20
+                ball_pos.y += delta_y / 20 + gravidade
+
+        if ball_pos.x > basket_x - 10 and ball_pos.x < basket_x + 10 and ball_pos.y < basket_y + 10 and ball_pos.y > basket_y - 10:
+            ball_moving = False
+            aiming = False
+            score += 1
+            ball_pos = pygame.Vector2(100,100)
+        
+        #Verificar se o jogador sai fora da tela
+    if player_pos.x < 0:
+        player_pos.x = 0
+    if player_pos.x > screen.get_width() - playerimage.get_width():
+        player_pos.x = screen.get_width() - playerimage.get_width()
+    if player_pos.y < 0:
+        player_pos.y = 0
+    if player_pos.y > screen.get_height() - playerimage.get_height():
+        player_pos.y = screen.get_height() - playerimage.get_height()
+
+    if keys[pygame.K_SPACE] and not ball_moving: 
+        aiming = True
+        if descendo:
+            inicio += 2
+            tamanho = 400 - inicio
+            if inicio > 400:
+                descendo = False
+        else:
+            inicio -= 2
+            tamanho = 400 - inicio
+            if inicio < 200:
+                descendo = True
+    else:
+        if aiming:
+            aiming = False
+            ball_moving = True
+            ball_pos = player_pos + pygame.Vector2(offset, 0)
+            ball_speed = pygame.Vector2(10, -5)
+
+
+        # Verificar se a bola sai da tela
+        if ball_pos.x > screen.get_width() or ball_pos.y > screen.get_height() or ball_pos.x < 0 or ball_pos.y < 0:
+            ball_moving = False
+            aiming = False
+            ball_pos = pygame.Vector2(100, 100)
+            ball_speed = pygame.Vector2(0, 0)
+            attempts += 1
+            if attempts >= max_attempts:
+                game_over = True
+                message = "Game Over"
+
+
+    pygame.display.flip()
+    dt = clock.tick(60) / 1000
+
+pygame.quit()
+sys.exit()
